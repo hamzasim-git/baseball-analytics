@@ -36,7 +36,7 @@ See full ERD in `/docs/erd.png`
 ## Project Status
 
 - [x] Phase 1 — Database design and ER modelling
-- [ ] Phase 2 — Schema implementation and data ingestion
+- [x] Phase 2 — Schema implementation and data ingestion
 - [ ] Phase 3 — Backend API
 - [ ] Phase 4 — Frontend
 
@@ -44,6 +44,14 @@ See full ERD in `/docs/erd.png`
 
 MLB Statcast data via [pybaseball](https://github.com/jldbc/pybaseball).
 Covers 2015 to present, aligned with Statcast tracking system availability.
+
+
+### Phase 2 — Schema Implementation
+Tables created in PostgreSQL:
+
+![Schema Terminal](docs/phase2-schema-terminal.png)
+
+
 
 ## Setup
 
