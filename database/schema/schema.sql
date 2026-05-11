@@ -17,14 +17,14 @@ CREATE TABLE Team (
 );
 
 CREATE TABLE Player (
-    player_id       SERIAL PRIMARY KEY,
+    player_id       INT PRIMARY KEY,
     first_name      VARCHAR(50) NOT NULL,
     last_name       VARCHAR(50) NOT NULL,
-    nationality     VARCHAR(50) NOT NULL,
-    bats            CHAR(1) NOT NULL,
-    throws          CHAR(1) NOT NULL,
-    birth_date      DATE NOT NULL,
-    debut_date      DATE NOT NULL
+    nationality     VARCHAR(50),
+    bats            CHAR(1),
+    throws          CHAR(1),
+    birth_date      DATE,
+    debut_date      INT
 );
 
 CREATE table Game (
@@ -62,12 +62,12 @@ CREATE TABLE HitEvent (
     game_id         VARCHAR(20) NOT NULL,
     batter_id       INT NOT NULL,
     pitcher_id      INT NOT NULL,
-    hit_type        VARCHAR(20) NOT NULL,
-    coord_x         DECIMAL(6,2) NOT NULL,
-    coord_y         DECIMAL(6,2) NOT NULL,
-    exit_velocity   DECIMAL(5,2) NOT NULL,
-    launch_angle    DECIMAL(5,2) NOT NULL,
-    distance_ft     INT NOT NULL,
+    hit_type        VARCHAR(50) NOT NULL,
+    coord_x         DECIMAL(6,2),
+    coord_y         DECIMAL(6,2),
+    exit_velocity   DECIMAL(5,2),
+    launch_angle    DECIMAL(5,2),
+    distance_ft     INT,
     FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (batter_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (pitcher_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE
