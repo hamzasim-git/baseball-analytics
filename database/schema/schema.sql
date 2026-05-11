@@ -35,9 +35,9 @@ CREATE table Game (
     away_team_id    INT NOT NULL,
     home_score      INT NOT NULL,
     away_score      INT NOT NULL,
-    FOREIGN KEY (season_id) REFERENCES Season(season_id),
-    FOREIGN KEY (home_team_id) REFERENCES Team(team_id),
-    FOREIGN KEY (away_team_id) REFERENCES Team(team_id)
+    FOREIGN KEY (season_id) REFERENCES Season(season_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (home_team_id) REFERENCES Team(team_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (away_team_id) REFERENCES Team(team_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE TeamSeasonStats (
@@ -52,8 +52,8 @@ CREATE TABLE TeamSeasonStats (
     runs_allowed    INT NOT NULL,
     team_era        DECIMAL(4,2) NOT NULL,
     team_ops        DECIMAL(4,3) NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES Team(team_id),
-    FOREIGN KEY (season_id) REFERENCES Season(season_id),
+    FOREIGN KEY (team_id) REFERENCES Team(team_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (season_id) REFERENCES Season(season_id) ON DELETE CASCADE ON UPDATE CASCADE,
     UNIQUE (team_id, season_id)
 );
 
@@ -68,9 +68,9 @@ CREATE TABLE HitEvent (
     exit_velocity   DECIMAL(5,2) NOT NULL,
     launch_angle    DECIMAL(5,2) NOT NULL,
     distance_ft     INT NOT NULL,
-    FOREIGN KEY (game_id) REFERENCES Game(game_id),
-    FOREIGN KEY (batter_id) REFERENCES Player(player_id),
-    FOREIGN KEY (pitcher_id) REFERENCES Player(player_id)
+    FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (batter_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (pitcher_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE PitchEvent (
@@ -83,9 +83,9 @@ CREATE TABLE PitchEvent (
     plate_x         DECIMAL(5,2) NOT NULL,
     plate_z         DECIMAL(5,2) NOT NULL,
     pitch_result    VARCHAR(30) NOT NULL,
-    FOREIGN KEY (game_id) REFERENCES Game(game_id),
-    FOREIGN KEY (pitcher_id) REFERENCES Player(player_id),
-    FOREIGN KEY (batter_id) REFERENCES Player(player_id)
+    FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (pitcher_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (batter_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE PlayerGamePosition (
@@ -94,6 +94,6 @@ CREATE TABLE PlayerGamePosition (
     position        VARCHAR(5) NOT NULL,
     is_starter      BOOLEAN NOT NULL,
     PRIMARY KEY (player_id, game_id),
-    FOREIGN KEY (player_id) REFERENCES Player(player_id),
-    FOREIGN KEY (game_id) REFERENCES Game(game_id)
+    FOREIGN KEY (player_id) REFERENCES Player(player_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (game_id) REFERENCES Game(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
