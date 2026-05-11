@@ -4,6 +4,8 @@ from pybaseball import statcast, chadwick_register
 from dotenv import load_dotenv
 import os
 from datetime import datetime
+from pybaseball import cache
+cache.enable()
 
 load_dotenv()
 
@@ -16,10 +18,24 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 print("Connected to database successfully")
 
+
+current_year = datetime.now().year
+
 # Fetch one day of Statcast data
 print("Fetching Statcast data...")
-data = statcast( start_dt="2024-04-01", end_dt="2024-04-01")
-print(f"Rows fetched: {len(data)}")
+all_data = []
+
+for year in range(2015, current_year + 1):
+    print(f"Fetching {year} season...")
+    try:
+        year_data = statcast(start_dt=f"{year}-03-01", end_dt=f"{year}-11-30")
+        all_data.append(year_data)
+        print(f"{year}: {len(year_data)} rows fetched")
+    except Exception as e:
+        print(f"Failed to fetch {year}: {e}")
+
+data = pd.concat(all_data, ignore_index=True)
+print(f"Total rows fetched: {len(data)}")
 
 # Get unique player IDs from this data
 batter_ids = data['batter'].dropna().unique()
@@ -180,7 +196,20 @@ hits_skipped = 0
 
 # Filter to only batted ball events
 hit_data = data[data['events'].notna() & data['hc_x'].notna()].copy()
+# Insert any missing players as unknowns
+all_batter_ids = data['batter'].dropna().unique()
+all_pitcher_ids = data['pitcher'].dropna().unique()
+all_ids = set(all_batter_ids) | set(all_pitcher_ids)
 
+for pid in all_ids:
+    cursor.execute("""
+        INSERT INTO Player (player_id, first_name, last_name)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (player_id) DO NOTHING
+    """, (int(pid), 'Unknown', 'Unknown'))
+
+conn.commit()
+print("Missing players filled in")
 for _, row in hit_data.iterrows():
     try:
         cursor.execute("""
@@ -242,3 +271,12 @@ for _, row in pitch_data.iterrows():
 
 conn.commit()
 print(f"Pitch events inserted: {pitches_inserted}, skipped: {pitches_skipped}")
+
+# Retry 2023
+print("Retrying 2023...")
+try:
+    data_2023 = statcast(start_dt="2023-03-01", end_dt="2023-11-30")
+    all_data.append(data_2023)
+    print(f"2023 retry: {len(data_2023)} rows")
+except Exception as e:
+    print(f"2023 retry failed: {e}")
