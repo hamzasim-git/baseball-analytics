@@ -33,29 +33,37 @@ and Statcast hit and pitch level events.
 
 See full ERD in `/docs/erd.png`
 
-## Project Status
+## Progress
 
-- [x] Phase 1 — Database design and ER modelling
-- [x] Phase 2 — Schema implementation and data ingestion
-- [ ] Phase 3 — Backend API
-- [ ] Phase 4 — Frontend
+### Phase 1 — Database Design ✅
+- Designed 7 entities and 13 relationships using ER modelling
+- Full ERD with cardinality and participation constraints
 
-## Data Source
+![ERD](docs/erd.png)
 
-MLB Statcast data via [pybaseball](https://github.com/jldbc/pybaseball).
-Covers 2015 to present, aligned with Statcast tracking system availability.
-
-
-### Phase 2 — Schema Implementation
-Tables created in PostgreSQL:
+### Phase 2 — Schema Implementation ✅
+- Implemented all 8 tables in PostgreSQL with foreign keys, constraints, and cascade rules
+- Normalized to 3NF
 
 ![Schema Terminal](docs/phase2-schema-terminal.png)
 
+### Phase 3 — Data Ingestion ✅
+- Built ETL pipeline using Python and pybaseball
+- Loaded full MLB Statcast dataset 2015 to present
 
+| Table | Rows |
+|-------|------|
+| Teams | 30 |
+| Seasons | 12 |
+| Players | 7,349 |
+| Games | 27,450 |
+| Hit Events | 2,921,059 |
+| Pitch Events | 900,387 |
 
-## Setup
+![Database Counts](docs/phase3-database-counts.png)
 
-*Coming soon as each phase is completed.*
+### Phase 4 — Backend API 🔄 In progress
+### Phase 5 — Frontend 🔄 Coming soon
 
 ## Author
 
