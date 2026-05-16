@@ -62,7 +62,14 @@ See full ERD in `/docs/erd.png`
 
 ![Database Counts](docs/phase3-database-counts.png)
 
-### Phase 4 — Backend API 🔄 In progress
+### Phase 4 — Backend API ✅
+- Built FastAPI server with 9 endpoints
+- Endpoints cover teams, seasons, games, players, home runs and pitch heatmap
+- Auto-generated API docs at /docs
+
+
+
+
 ### Phase 5 — Frontend 🔄 Coming soon
 
 ## Author
