@@ -216,3 +216,25 @@ def get_team_games(team_id: int, year: int):
     conn.close()
     
     return list(games)
+
+@app.get("/teams/{team_id}/seasons")
+def get_team_seasons(team_id: int):
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    
+    cursor.execute("""
+        SELECT s.year, tss.wins, tss.losses, tss.division_rank,
+               tss.playoff_result, tss.runs_scored, tss.runs_allowed,
+               tss.team_era, tss.team_ops,
+               tss.runs_scored - tss.runs_allowed as run_differential
+        FROM TeamSeasonStats tss
+        JOIN Season s ON tss.season_id = s.season_id
+        WHERE tss.team_id = %s
+        ORDER BY s.year DESC
+    """, (team_id,))
+    
+    seasons = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return list(seasons)
