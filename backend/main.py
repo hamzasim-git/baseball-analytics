@@ -12,7 +12,8 @@ app = FastAPI()
 # Allow React frontend to talk to this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -68,21 +69,17 @@ def search_players(name: str):
 def get_homeruns(player_id: int, year: int, game_id: str = None):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    
+
     if game_id:
         cursor.execute("""
             SELECT h.hit_id, h.coord_x, h.coord_y, h.exit_velocity,
-                   h.launch_angle, h.distance_ft, g.date,
-                   t.abbreviation as opponent
+                   h.launch_angle, h.distance_ft, g.date, g.game_id,
+                   ht.abbreviation as home_team,
+                   at.abbreviation as away_team
             FROM HitEvent h
             JOIN Game g ON h.game_id = g.game_id
-            JOIN Team t ON (
-                CASE WHEN g.home_team_id != (
-                    SELECT team_id FROM Team WHERE abbreviation = (
-                        SELECT home_team FROM Team LIMIT 1
-                    )
-                ) THEN g.home_team_id ELSE g.away_team_id END
-            ) = t.team_id
+            JOIN Team ht ON g.home_team_id = ht.team_id
+            JOIN Team at ON g.away_team_id = at.team_id
             JOIN Season s ON g.season_id = s.season_id
             WHERE h.batter_id = %s
             AND h.hit_type = 'home_run'
@@ -92,20 +89,24 @@ def get_homeruns(player_id: int, year: int, game_id: str = None):
     else:
         cursor.execute("""
             SELECT h.hit_id, h.coord_x, h.coord_y, h.exit_velocity,
-                   h.launch_angle, h.distance_ft, g.date, g.game_id
+                   h.launch_angle, h.distance_ft, g.date, g.game_id,
+                   ht.abbreviation as home_team,
+                   at.abbreviation as away_team
             FROM HitEvent h
             JOIN Game g ON h.game_id = g.game_id
+            JOIN Team ht ON g.home_team_id = ht.team_id
+            JOIN Team at ON g.away_team_id = at.team_id
             JOIN Season s ON g.season_id = s.season_id
             WHERE h.batter_id = %s
             AND h.hit_type = 'home_run'
             AND s.year = %s
             ORDER BY g.date
         """, (player_id, year))
-    
+
     homeruns = cursor.fetchall()
     cursor.close()
     conn.close()
-    
+
     return list(homeruns)
 
 
@@ -166,6 +167,33 @@ def get_pitcher_heatmap(player_id: int, year: int, game_id: str = None):
     conn.close()
     
     return list(pitches)
+
+
+
+@app.get("/pitchers/{player_id}/games")
+def get_pitcher_games(player_id: int, year: int):
+    conn = get_db()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    
+    cursor.execute("""
+        SELECT DISTINCT g.game_id, g.date,
+               ht.abbreviation as home_team,
+               at.abbreviation as away_team
+        FROM Game g
+        JOIN PitchEvent p ON p.game_id = g.game_id
+        JOIN Season s ON g.season_id = s.season_id
+        JOIN Team ht ON g.home_team_id = ht.team_id
+        JOIN Team at ON g.away_team_id = at.team_id
+        WHERE p.pitcher_id = %s
+        AND s.year = %s
+        ORDER BY g.date
+    """, (player_id, year))
+    
+    games = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return list(games)
 
 @app.get("/teams/{team_id}/seasons/{year}")
 def get_team_season(team_id: int, year: int):
