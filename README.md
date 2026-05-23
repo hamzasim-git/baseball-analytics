@@ -1,29 +1,29 @@
 # ⚾ Baseball Analytics
 
-A full-stack baseball analytics web app powered by real MLB Statcast data.
+A full-stack baseball analytics web app powered by real MLB Statcast data (2015–present).
 Built with PostgreSQL, Python, FastAPI, and React.
 
-![ERD Diagram](docs/erd.png)
+## Live Demo
+*Coming soon*
 
 ## What it does
 
 **Stats Section** — Browse all 30 MLB teams across seasons from 2015 to present.
-View season summaries including wins, losses, ERA, OPS, run differential, 
-and playoff results. Drill into any season to see individual game results.
+View season summaries including wins, losses, run differential, ERA, and OPS.
+Drill into any season to see individual game results.
 
-**Visuals Section** — Select any MLB player and season to see an interactive
-home run spray chart — every home run plotted on a field diagram with exit
-velocity, launch angle, and distance on hover. Pitchers get a pitch location
-heatmap showing where they located every pitch.
+**Visuals Section** — Select any MLB player and season to see interactive visualizations:
+- **Batters** — Home run spray chart with exit velocity, launch angle, and distance on hover
+- **Pitchers** — Pitch location heatmap colored by pitch type with velocity and result on hover
 
 ## Tech Stack
 
-| Layer    | Technology          |
-|----------|---------------------|
-| Database | PostgreSQL          |
-| ETL      | Python, pybaseball  |
-| Backend  | Python, FastAPI     |
-| Frontend | React, Chart.js     |
+| Layer    | Technology                        |
+|----------|-----------------------------------|
+| Database | PostgreSQL 18                     |
+| ETL      | Python, pybaseball, pandas        |
+| Backend  | Python, FastAPI, psycopg2         |
+| Frontend | React, HTML5 Canvas, Axios        |
 
 ## Database Design
 
@@ -31,25 +31,9 @@ Designed using ER modelling and normalized to 3NF.
 7 entities covering teams, seasons, games, players,
 and Statcast hit and pitch level events.
 
-See full ERD in `/docs/erd.png`
-
-## Progress
-
-### Phase 1 — Database Design ✅
-- Designed 7 entities and 13 relationships using ER modelling
-- Full ERD with cardinality and participation constraints
-
 ![ERD](docs/erd.png)
 
-### Phase 2 — Schema Implementation ✅
-- Implemented all 8 tables in PostgreSQL with foreign keys, constraints, and cascade rules
-- Normalized to 3NF
-
-![Schema Terminal](docs/phase2-schema-terminal.png)
-
-### Phase 3 — Data Ingestion ✅
-- Built ETL pipeline using Python and pybaseball
-- Loaded full MLB Statcast dataset 2015 to present
+## Database Scale
 
 | Table | Rows |
 |-------|------|
@@ -57,23 +41,84 @@ See full ERD in `/docs/erd.png`
 | Seasons | 12 |
 | Players | 7,349 |
 | Games | 27,450 |
-| Hit Events | 2,921,059 |
-| Pitch Events | 900,387 |
+| Hit Events | 1,274,660 |
+| Pitch Events | 7,900,000+ |
 
 ![Database Counts](docs/phase3-database-counts.png)
 
-### Phase 4 — Backend API ✅
-- Built FastAPI server with 9 endpoints
-- Endpoints cover teams, seasons, games, players, home runs and pitch heatmap
-- Auto-generated API docs at /docs
+## API Endpoints
 
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/teams` | All 30 MLB teams |
+| GET | `/teams/{id}/seasons` | All seasons for a team |
+| GET | `/teams/{id}/seasons/{year}` | Season stats for a team |
+| GET | `/games/{team_id}/{year}` | All games for a team in a season |
+| GET | `/players/search?name=` | Search players by name |
+| GET | `/players/{id}/homeruns` | Home run data for spray chart |
+| GET | `/players/{id}/games` | Games a batter appeared in |
+| GET | `/pitchers/{id}/heatmap` | Pitch location data for heatmap |
+| GET | `/pitchers/{id}/games` | Games a pitcher appeared in |
 
+## Project Progress
 
+- [x] Phase 1 — Database design and ER modelling
+- [x] Phase 2 — Schema implementation in PostgreSQL
+- [x] Phase 3 — ETL pipeline and data ingestion
+- [x] Phase 4 — FastAPI backend with 9 endpoints
+- [x] Phase 5 — React frontend with stats and visuals pages
 
-### Phase 5 — Frontend 🔄 Coming soon
+## Screenshots
+
+### Phase 2 — Schema Implementation
+![Schema Terminal](docs/phase2-schema-terminal.png)
+
+## Data Source
+
+MLB Statcast data via [pybaseball](https://github.com/jldbc/pybaseball).
+Covers 2015 to present, aligned with MLB Statcast tracking system availability.
+
+## Setup
+
+### Prerequisites
+- PostgreSQL 18
+- Python 3.11+
+- Node.js 18+
+
+### Database
+```bash
+createdb baseball_analytics
+psql -U postgres -d baseball_analytics -f database/schema/schema.sql
+python3 data/ingest.py
+```
+
+### Backend
+```bash
+pip3 install fastapi uvicorn psycopg2-binary pandas pybaseball python-dotenv
+uvicorn backend.main:app --reload
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
+
+### Environment Variables
+Create a `.env` file in the project root:
+DB_HOST=localhost
+DB_NAME=baseball_analytics
+DB_USER=postgres
+DB_PASSWORD=your_password
+
+## Design Decisions
+
+See `DECISIONS.md` for documented technical decisions made throughout the project.
 
 ## Author
 
 Hamzah Asim
-Computer Science, York University  
+Computer Science, York University
+[GitHub](https://github.com/hamzasim-git/baseball-analytics)
 [LinkedIn](https://www.linkedin.com/in/hamzah-asim/) 
