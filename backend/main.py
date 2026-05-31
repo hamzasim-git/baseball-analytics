@@ -24,7 +24,8 @@ def get_db():
         host=os.getenv("DB_HOST"),
         database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
+        password=os.getenv("DB_PASSWORD"),
+        port=os.getenv("DB_PORT", "5432")
     )
     return conn
 
@@ -65,15 +66,15 @@ def search_players(name: str):
     return list(players)
 
 
-@app.get("/players/{player_id}/homeruns")
-def get_homeruns(player_id: int, year: int, game_id: str = None):
+@app.get("/players/{player_id}/hits")
+def get_hits(player_id: int, year: int, game_id: str = None):
     conn = get_db()
     cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     if game_id:
         cursor.execute("""
             SELECT h.hit_id, h.coord_x, h.coord_y, h.exit_velocity,
-                   h.launch_angle, h.distance_ft, g.date, g.game_id,
+                   h.launch_angle, h.distance_ft, h.hit_type, g.date, g.game_id,
                    ht.abbreviation as home_team,
                    at.abbreviation as away_team
             FROM HitEvent h
@@ -82,14 +83,13 @@ def get_homeruns(player_id: int, year: int, game_id: str = None):
             JOIN Team at ON g.away_team_id = at.team_id
             JOIN Season s ON g.season_id = s.season_id
             WHERE h.batter_id = %s
-            AND h.hit_type = 'home_run'
             AND s.year = %s
             AND h.game_id = %s
         """, (player_id, year, game_id))
     else:
         cursor.execute("""
             SELECT h.hit_id, h.coord_x, h.coord_y, h.exit_velocity,
-                   h.launch_angle, h.distance_ft, g.date, g.game_id,
+                   h.launch_angle, h.distance_ft, h.hit_type, g.date, g.game_id,
                    ht.abbreviation as home_team,
                    at.abbreviation as away_team
             FROM HitEvent h
@@ -98,16 +98,14 @@ def get_homeruns(player_id: int, year: int, game_id: str = None):
             JOIN Team at ON g.away_team_id = at.team_id
             JOIN Season s ON g.season_id = s.season_id
             WHERE h.batter_id = %s
-            AND h.hit_type = 'home_run'
             AND s.year = %s
             ORDER BY g.date
         """, (player_id, year))
 
-    homeruns = cursor.fetchall()
+    hits = cursor.fetchall()
     cursor.close()
     conn.close()
-
-    return list(homeruns)
+    return list(hits)
 
 
 @app.get("/players/{player_id}/games")

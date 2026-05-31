@@ -43,7 +43,7 @@ function PitchHeatmap({ data }) {
 
     const getCoords = (plateX, plateZ, w, h) => {
         const x = w * 0.5 + (plateX / 1.5) * (w * 0.2)
-        const y = h * 0.65 - ((plateZ - 1.5) / 2.5) * (h * 0.45)
+        const y = h * 0.75 - ((plateZ - 0.5) / 4.0) * (h * 0.65)
         return { x, y }
     }
 
@@ -109,8 +109,8 @@ function PitchHeatmap({ data }) {
             <div style={{ position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
-                    width={400}
-                    height={450}
+                    width={500}
+                    height={520}
                     onMouseMove={handleMouseMove}
                     onMouseLeave={() => setTooltip(null)}
                     style={{ borderRadius: '8px', cursor: 'crosshair' }}
